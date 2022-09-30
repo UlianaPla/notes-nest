@@ -1,4 +1,5 @@
-import { IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional } from 'class-validator';
 
 export class EditNoteDto {
   @IsOptional()
@@ -9,4 +10,11 @@ export class EditNoteDto {
 
   @IsOptional()
   category?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value === 'true' : value,
+  )
+  isArchived?: boolean;
 }

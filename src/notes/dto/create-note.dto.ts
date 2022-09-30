@@ -13,4 +13,6 @@ export class CreateNoteDto {
   category: string;
 
   dates: Date[];
+
+  isArchived: boolean;
 }

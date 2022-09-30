@@ -40,6 +40,7 @@ export class NotesService {
         category: dto.category,
         content: dto.content,
         dates: parsedDates,
+        isArchived: false,
       },
     });
 
@@ -96,6 +97,13 @@ export class NotesService {
       where: {
         id: noteId,
       },
+    });
+  }
+
+  async getStats() {
+    return await this.prisma.note.groupBy({
+      by: ['category', 'isArchived'],
+      _count: true,
     });
   }
 }

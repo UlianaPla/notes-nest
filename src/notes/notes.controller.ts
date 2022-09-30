@@ -16,6 +16,11 @@ import { NotesService } from './notes.service';
 export class NotesController {
   constructor(private notesService: NotesService) {}
 
+  @Get('/stats')
+  getStats() {
+    return this.notesService.getStats();
+  }
+
   @Post()
   createNote(@Body() dto: CreateNoteDto) {
     return this.notesService.createNote(dto);
