@@ -11,11 +11,11 @@ datasource db {
 }
 
 model Note {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  category  String
-  content   String
-  dates     DateTime[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  createdAt  DateTime   @default(now())
+  category   String
+  content    String
+  dates      DateTime[]
   isArchived Boolean
 }
