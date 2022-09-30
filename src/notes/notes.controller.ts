@@ -1,23 +1,46 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
-import { NoteDto } from './dto/note.dto';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { EditNoteDto } from './dto';
+import { CreateNoteDto } from './dto/create-note.dto';
 import { NotesService } from './notes.service';
 
 @Controller('notes')
 export class NotesController {
   constructor(private notesService: NotesService) {}
 
-  @Get()
-  getData() {
-    return this.notesService.getData();
-  }
-
   @Post()
-  postData(@Body() dto: NoteDto) {
-    return this.notesService.postData(dto);
+  createNote(@Body() dto: CreateNoteDto) {
+    return this.notesService.createNote(dto);
   }
 
-  @Post('signin')
-  signin(@Body() dto: NoteDto) {
-    return this.notesService.getData();
+  @Get(':id')
+  getNoteById(@Param('id', ParseIntPipe) noteId: number) {
+    return this.notesService.getNoteById(noteId);
+  }
+
+  @Get()
+  getNotes() {
+    return this.notesService.getNotes();
+  }
+
+  @Patch(':id')
+  editNoteById(
+    @Param('id', ParseIntPipe) noteId: number,
+    @Body() dto: EditNoteDto,
+  ) {
+    return this.notesService.editNoteById(noteId, dto);
+  }
+
+  @Delete(':id')
+  deleteNoteById(@Param('id', ParseIntPipe) noteId: number) {
+    return this.notesService.deleteNoteById(noteId);
   }
 }

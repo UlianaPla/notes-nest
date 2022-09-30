@@ -1,6 +1,6 @@
-import { IsDate, IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
-export class NoteDto {
+export class CreateNoteDto {
   @IsNotEmpty()
   name: string;
 

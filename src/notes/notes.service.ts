@@ -1,8 +1,6 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Note } from '@prisma/client';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { NoteDto } from './dto';
+import { CreateNoteDto, EditNoteDto } from './dto';
 
 const dateReg = /(0?[1-9]|[12][0-9]|3[01])[\/\/.](0?[1-9]|1[012])[\/\/.]\d{4}/g,
   dividerSlash = '/', // Note: if changing dividers -> change the regular expression
@@ -12,8 +10,8 @@ const dateReg = /(0?[1-9]|[12][0-9]|3[01])[\/\/.](0?[1-9]|1[012])[\/\/.]\d{4}/g,
 export class NotesService {
   constructor(private prisma: PrismaService) {}
 
-  getData() {
-    return { msg: 'I return data' };
+  getNotes() {
+    return this.prisma.note.findMany();
   }
 
   parseDatesFromContent = (content: String) => {
@@ -33,26 +31,71 @@ export class NotesService {
     return datesArray;
   };
 
-  async postData(dto: NoteDto) {
+  async createNote(dto: CreateNoteDto) {
     const parsedDates = this.parseDatesFromContent(dto.content);
 
-    //save the new note in the db
-    try {
-      const note = await this.prisma.note.create({
-        data: {
-          name: dto.name,
-          category: dto.category,
-          content: dto.content,
-          dates: parsedDates,
-        },
-      });
+    const note = await this.prisma.note.create({
+      data: {
+        name: dto.name,
+        category: dto.category,
+        content: dto.content,
+        dates: parsedDates,
+      },
+    });
 
-      //return the saved note
-      return note;
-    } catch (error) {
-      console.log(error);
-    }
+    return note;
+  }
 
-    return { msg: "I've posted the data" };
+  async getNoteById(noteId: number) {
+    // find the note by id
+    const note = await this.prisma.note.findUnique({
+      where: {
+        id: noteId,
+      },
+    });
+    // if note does not exist throw exception
+    if (!note) throw new NotFoundException('Invalid id');
+
+    return note;
+  }
+
+  async editNoteById(noteId: number, dto: EditNoteDto) {
+    const note = await this.prisma.note.findUnique({
+      where: {
+        id: noteId,
+      },
+    });
+
+    let parsedDates = note.dates;
+    if (dto.content) parsedDates = this.parseDatesFromContent(dto.content);
+
+    if (!note) throw new NotFoundException('Invalid id');
+
+    return this.prisma.note.update({
+      where: {
+        id: noteId,
+      },
+      data: {
+        ...dto,
+        dates: parsedDates,
+      },
+    });
+  }
+
+  async deleteNoteById(noteId: number) {
+    const note = await this.prisma.note.findUnique({
+      where: {
+        id: noteId,
+      },
+    });
+
+    // if note does not exist throw exception
+    if (!note) throw new NotFoundException('Invalid id');
+
+    await this.prisma.note.delete({
+      where: {
+        id: noteId,
+      },
+    });
   }
 }
